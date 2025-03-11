@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layouts/main}"
+      xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Minden napra egy sztori</title>
+</head>
+<body>
+
+<div layout:fragment="loginContent">
+    <form name="registration" th:action="@{/reg}" th:object="${user}" methods="post" class="form-signin">
+        <h2 class="form-signin-heading">Kérlek regisztrálj</h2>
+        <label for="username" class="sr-only">Felhasználói név</label>
+            <input type="text" id="username" name="username" th:field="*{email}" class="form-control" placeholder="E-mail cím"/>
+        <label for="password" class="sr-only">Jelszó</label>
+            <input type="password" id="password" name="password" th:field="*{password}" class="form-control" placeholder="Jelszó"/>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Regisztráció</button>
+</div>
+
+</body>
+</html>

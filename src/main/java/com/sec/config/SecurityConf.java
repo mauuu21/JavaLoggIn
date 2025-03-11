@@ -1,28 +1,45 @@
 package com.sec.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-@EnableGlobalMethodSecurity(securedEnabled = true)
+
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConf {
-	
-	@Autowired
-	public void configureAuth(AuthenticationManagerBuilder auth) throws Exception{
-		auth
-		  .inMemoryAuthentication()
-		    .withUser("User")
-		    .password("pass")
-		    .roles("USER")
-		   .and()
-             .withUser("Admin")
-             .password("pass")
-             .roles("ADMIN");
+
+	private final PasswordEncoder passwordEncoder;
+
+    public SecurityConf(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Bean
+	public UserDetailsService configureAuth() {
+		UserDetails user = User.builder()
+						.username("user")
+						.password(passwordEncoder.encode("pass"))
+						.roles("USER")
+						.build();
+
+		UserDetails admin = User.builder()
+						.username("Admin")
+						.password(passwordEncoder.encode("pass"))
+						.roles("ADMIN")
+						.build();
+
+		return new InMemoryUserDetailsManager(user, admin);
 	}
 
 	@Bean
@@ -30,16 +47,16 @@ public class SecurityConf {
 		http.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/css/**")
 						.permitAll()
-						.requestMatchers("/admin/**")
-						.hasRole("ADMIN")		//admin felületet csak admin érhet el
+						.requestMatchers("/registration")
+						.permitAll()
+						.requestMatchers("/reg").permitAll()
 						.anyRequest().authenticated())				//mindent authentikálunk
 				.formLogin(config -> config
 						.loginPage("/login")
-						.permitAll())			//bárki elérheti
+						.defaultSuccessUrl("/", true).permitAll())
 				.logout(logout -> logout
 						.logoutUrl("/logout")
-						.logoutSuccessUrl("/login?logout")
-						.permitAll()
+						.logoutSuccessUrl("/login?logout").permitAll()
 				);
 		return http.build();
 	}
