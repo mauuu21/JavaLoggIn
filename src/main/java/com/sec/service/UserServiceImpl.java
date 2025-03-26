@@ -15,14 +15,16 @@ import java.util.Random;
 @Service
 public class UserServiceImpl implements UserDetailsService {
 
+    private EmailService emailService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final String USER_ROLE = "USER";
 
     public UserServiceImpl(UserRepository userRepository,
-                           RoleRepository roleRepository) {
+                           RoleRepository roleRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -42,7 +44,9 @@ public class UserServiceImpl implements UserDetailsService {
                             () -> userToRegister.addRoles(USER_ROLE)
                     );
             userToRegister.setEnabled(false);
-            userToRegister.setActivation(generateKey());
+            String generatedKey = generateKey();
+            userToRegister.setActivation(generatedKey);
+            emailService.sendMessage(userToRegister.getEmail(), generatedKey);
             User u = userRepository.save(userToRegister);
             }
 //            Role userRole = roleRepository.findByRole(USER_ROLE);

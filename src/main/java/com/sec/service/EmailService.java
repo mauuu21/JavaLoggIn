@@ -1,5 +1,6 @@
 package com.sec.service;
 
+import com.sec.entity.User;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,12 +17,14 @@ public class EmailService {
     private String MESSAGE_FROM;
 
     private JavaMailSender javaMailSender;
+    private UserServiceImpl userServiceImpl;
 
-    public EmailService(JavaMailSender javaMailSender) {
+    public EmailService(JavaMailSender javaMailSender, UserServiceImpl userServiceImpl) {
         this.javaMailSender = javaMailSender;
+        this.userServiceImpl = userServiceImpl;
     }
 
-    public void sendMessage(String email) {
+    public void sendMessage(String email, String activationCode) {
 
         SimpleMailMessage message;
         try {
@@ -29,7 +32,7 @@ public class EmailService {
             message.setFrom(MESSAGE_FROM);
             message.setTo(email);
             message.setSubject("Sikeres regisztráció");
-            message.setText("Kedves "  + email + "! \n  Köszönjük, hogy regisztráltál!");
+            message.setText("Kedves "  + email + "! \n  Köszönjük, hogy regisztráltál! \n" + "az aktiváló kódód: " + activationCode);
 
         } catch (Exception e) {
             log.error("Hiba a küldéskor az alábbi címre: " + email + " " + e);

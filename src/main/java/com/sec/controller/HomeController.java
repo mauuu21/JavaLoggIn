@@ -67,7 +67,7 @@ public class HomeController {
 
 	@RequestMapping(value = "/reg", method = RequestMethod.POST)
 	public String greetingSubmit(@ModelAttribute User user) {
-		emailService.sendMessage(user.getEmail());
+		emailService.sendMessage(user.getEmail(), user.getActivation());
 		System.out.println("New User created!");
 		log.info("New User");
 		log.debug(user.getEmail());
