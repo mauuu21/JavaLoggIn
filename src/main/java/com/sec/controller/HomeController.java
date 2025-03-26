@@ -1,7 +1,9 @@
 package com.sec.controller;
 
 import com.sec.entity.User;
+import com.sec.repository.UserRepository;
 import com.sec.service.EmailService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class HomeController {
 
 	private EmailService emailService;
+	private UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final Logger log = LoggerFactory.getLogger(this.getClass());                //sima controller miadt nézetekre bontjuk
 
@@ -55,6 +59,12 @@ public class HomeController {
 		return "registration";
 	}
 
+	@RequestMapping(path = "/activation/{code}", method = RequestMethod.GET)
+	public String activation(@PathVariable("code") String code, HttpServletResponse response) {
+		String result = userRepository.userActivation(code);
+		return "auth/login?activationsuccess";
+	}
+
 	@RequestMapping(value = "/reg", method = RequestMethod.POST)
 	public String greetingSubmit(@ModelAttribute User user) {
 		emailService.sendMessage(user.getEmail());
@@ -62,6 +72,7 @@ public class HomeController {
 		log.info("New User");
 		log.debug(user.getEmail());
 		log.debug(passwordEncoder.encode(user.getPassword()));
+		userRepository.registerUser(user);
 		return "auth/login";
 	}
 }

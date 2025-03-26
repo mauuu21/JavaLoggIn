@@ -10,13 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class UserDetailsImpl implements UserDetails {
-
-    private User user;
-
-    public UserDetailsImpl(User user) {
-        this.user = user;
-    };
+public record UserDetailsImpl(User user) implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
@@ -35,16 +29,14 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getEnabled();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+        Collection<GrantedAuthority> authorities = new HashSet<>();
         Set<Role> roles = user.getRoles();
-        for (Role role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getRole()));
-        }
+        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getRole())));
         return authorities;
     }
 
